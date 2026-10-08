@@ -817,7 +817,9 @@ button {
   .details-container {
     padding: 30px 15px;
   }
-  .solution-heading {
+}
+
+.solution-heading {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -968,4 +970,403 @@ textarea::placeholder {
   text-align: center;
   color: #6b7280;
 }
+
+/* MyCode: readable text colours */
+body,
+.app,
+.dashboard,
+.details-container {
+  color: #111827;
+}
+
+.app h1,
+.app h2,
+.app h3,
+.app strong,
+.app label,
+.app .brand span {
+  color: #111827;
+}
+
+.app p,
+.app .section-heading p,
+.app .welcome-section p,
+.app .details-heading p {
+  color: #4b5563;
+}
+
+.app input,
+.app textarea,
+.app select {
+  color: #111827;
+  background-color: #ffffff;
+}
+
+.app input::placeholder,
+.app textarea::placeholder {
+  color: #6b7280;
+  opacity: 1;
+}
+
+.app .problem-card h3,
+.app .topic-card h3 {
+  color: #111827;
+}
+
+.app .problem-card p,
+.app .topic-card p {
+  color: #4b5563;
+}
+
+/* Keep code readable on the dark editor */
+.app .code-editor,
+.app .code-editor code {
+  color: #f9fafb;
+}
+
+.app .output-box {
+  color: #1f2937;
+  background-color: #f3f4f6;
+}
+
+.app .notes-text {
+  color: #4b5563;
+}
+
+/* Keep the help button readable */
+.app .chatgpt-button {
+  color: #ffffff;
+}
+/* Login and signup screen */
+.auth-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: #f8fafc;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+}
+
+.auth-brand {
+  margin-bottom: 24px;
+}
+
+.auth-card h1 {
+  color: #111827;
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+.auth-card p {
+  color: #4b5563;
+  line-height: 1.5;
+}
+
+.auth-card label {
+  display: block;
+  color: #374151;
+  font-weight: 600;
+  margin: 18px 0 8px;
+}
+
+.auth-card input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  color: #111827;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 22px;
+}
+
+.auth-message {
+  margin-top: 14px;
+  overflow-wrap: anywhere;
+}
+
+.auth-switch {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.auth-switch button {
+  color: #4f46e5;
+  background: transparent;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.logout-button {
+  cursor: pointer;
+}
+
+/* MyCode login screen: stronger contrast and cleaner layout */
+.auth-screen {
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 28px 16px;
+  background: linear-gradient(135deg, #eef2ff 0%, #f8fafc 55%, #e0f2fe 100%);
+  color: #111827 !important;
+}
+
+.auth-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 430px;
+  padding: 36px;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 20px 55px rgba(31, 41, 55, 0.12);
+  color: #111827 !important;
+}
+
+.auth-card h1,
+.auth-card h2,
+.auth-card label,
+.auth-card strong {
+  color: #111827 !important;
+}
+
+.auth-card h1 {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.7px;
+  margin: 0 0 10px;
+}
+
+.auth-card p {
+  color: #4b5563 !important;
+  line-height: 1.6;
+}
+
+.auth-card label {
+  display: block;
+  margin: 18px 0 7px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.auth-card input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff !important;
+  color: #111827 !important;
+  font-size: 15px;
+  outline: none;
+}
+
+.auth-card input::placeholder {
+  color: #6b7280 !important;
+  opacity: 1;
+}
+
+.auth-card input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.13);
+}
+
+.auth-card button {
+  cursor: pointer;
+}
+
+.auth-card .auth-submit {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 22px;
+  border: none;
+  border-radius: 10px;
+  background: #4338ca;
+  color: #ffffff !important;
+  font-size: 15px;
+  font-weight: 700;
+  transition: background 0.2s ease;
+}
+
+.auth-card .auth-submit:hover {
+  background: #3730a3;
+}
+
+.auth-card .auth-switch {
+  margin-top: 22px;
+  color: #4b5563 !important;
+  text-align: center;
+}
+
+.auth-card .auth-switch button {
+  border: none;
+  background: transparent;
+  color: #4338ca !important;
+  font-weight: 700;
+}
+
+.auth-card .auth-message {
+  color: #b91c1c !important;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: 26px 20px;
+  }
+}
+
+/* Fix text visibility in all input fields */
+input,
+textarea,
+select {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  -webkit-text-fill-color: #000000 !important;
+  caret-color: #000000 !important;
+  border: 1px solid #cbd5e1 !important;
+  opacity: 1 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #666666 !important;
+  -webkit-text-fill-color: #666666 !important;
+  opacity: 1 !important;
+}
+
+/* Keep typed text black when autofill is used */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Make labels readable */
+label {
+  color: #111827 !important;
+}
+
+/* Make text areas easier to use */
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+
+/* GLOBAL TEXT VISIBILITY OVERRIDES */
+body,
+.app,
+.app *,
+.auth-screen,
+.auth-card,
+.auth-card *,
+.dashboard,
+.details-container {
+  color: #000000;
+}
+
+/* All headings, descriptions, labels, and secondary text should be black */
+h1, h2, h3, h4, h5, h6,
+p, label, span, strong, small, li,
+.section-heading p,
+.welcome-section p,
+.details-heading p,
+.problem-card p,
+.topic-card p,
+.stat-card span,
+.back-link,
+.language-label,
+.notes-text,
+.empty-learned,
+.auth-card p,
+.auth-card label,
+.auth-switch {
+  color: #000000 !important;
+}
+
+/* Typed text: black on white fields */
+input,
+textarea,
+select {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  caret-color: #000000 !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  opacity: 0.65 !important;
+}
+
+/* Keep white text on dark buttons so the button labels remain visible */
+.add-button,
+.small-add-button,
+.save-button,
+.language-button.selected,
+.chatgpt-button,
+.auth-submit,
+.brand-icon,
+.profile {
+  color: #ffffff !important;
+}
+
+/* Keep code readable on the dark code panel */
+.code-editor,
+.code-editor code {
+  color: #ffffff !important;
+}
+
+/* Keep buttons and links black unless they have a dark background */
+button,
+a,
+.auth-switch button {
+  color: #000000;
+}
+
+/* Ensure authentication inputs are stacked and readable */
+.auth-card label {
+  display: block !important;
+}
+
+.auth-card input {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  background: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Keep the app's dark buttons legible after the global text override */
+.auth-card .auth-submit {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+.auth-card .auth-switch button {
+  color: #000000 !important;
 }

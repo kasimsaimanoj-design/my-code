@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { supabase } from "./lib/supabase";
 import "./App.css";
 
 /* =========================================================
@@ -358,6 +359,13 @@ const topicProblems = {
 
 function App() {
   const [problems, setProblems] = useState(starterProblems);
+  const [authUser, setAuthUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authMode, setAuthMode] = useState("login");
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authMessage, setAuthMessage] = useState("");
+  const [authBusy, setAuthBusy] = useState(false);
 
   const [selectedProblem, setSelectedProblem] = useState(null);
 
@@ -381,6 +389,128 @@ function App() {
     pythonNotes: "",
   });
 
+
+  /* =========================================================
+     AUTHENTICATION AND DATABASE LOADING
+     ========================================================= */
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadSession = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (!mounted) return;
+
+      if (error) {
+        setAuthMessage(error.message);
+      }
+      setAuthUser(data?.session?.user ?? null);
+      setAuthLoading(false);
+    };
+
+    loadSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (mounted) {
+          setAuthUser(session?.user ?? null);
+          setAuthLoading(false);
+        }
+      }
+    );
+
+    return () => {
+      mounted = false;
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadProblems = async () => {
+      if (!authUser) {
+        setProblems(starterProblems);
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from("mycode_problems")
+        .select("*")
+        .eq("user_id", authUser.id)
+        .order("created_at", { ascending: true });
+
+      if (cancelled) return;
+
+      if (error) {
+        setAuthMessage(`Could not load saved problems: ${error.message}`);
+        return;
+      }
+
+      const savedProblems = (data ?? []).map((row) => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        difficulty: row.difficulty,
+        isLearned: row.is_learned,
+        solutions: row.solutions ?? {},
+      }));
+
+      setProblems([...starterProblems, ...savedProblems]);
+    };
+
+    loadProblems();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [authUser]);
+
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setAuthMessage("");
+
+    if (!authEmail.trim() || !authPassword) {
+      setAuthMessage("Enter your email and password.");
+      return;
+    }
+
+    setAuthBusy(true);
+    try {
+      if (authMode === "signup") {
+        const { data, error } = await supabase.auth.signUp({
+          email: authEmail.trim(),
+          password: authPassword,
+        });
+        if (error) throw error;
+
+        if (data.session) {
+          setAuthMessage("Account created successfully.");
+        } else {
+          setAuthMessage("Account created. Check your email to confirm it, then log in.");
+          setAuthMode("login");
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: authEmail.trim(),
+          password: authPassword,
+        });
+        if (error) throw error;
+        setAuthMessage("");
+      }
+    } catch (error) {
+      setAuthMessage(error.message || "Authentication failed. Please try again.");
+    } finally {
+      setAuthBusy(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) setAuthMessage(error.message);
+    setSelectedProblem(null);
+    setSelectedTopic(null);
+  };
 
   /* =========================================================
      OPEN PROBLEM
@@ -419,7 +549,11 @@ function App() {
 
   const learnWithChatGPT = () => {
     const solution =
-      selectedProblem.solutions[selectedLanguage];
+      selectedProblem.solutions?.[selectedLanguage] ?? {
+        code: selectedLanguage === "C" ? "// C solution not added yet." : "# Python solution not added yet.",
+        output: "No output added.",
+        notes: "No notes added.",
+      };
 
     const prompt = `I am practicing coding and I want to re-learn this problem.
 
@@ -456,7 +590,7 @@ I am a beginner, so keep the explanation simple.`;
      SAVE NEW PROBLEM
      ========================================================= */
 
-  const saveProblem = (e) => {
+  const saveProblem = async (e) => {
     e.preventDefault();
 
     if (!form.title.trim()) {
@@ -464,10 +598,13 @@ I am a beginner, so keep the explanation simple.`;
       return;
     }
 
-    const newProblem = {
-      id: Date.now(),
+    if (!authUser) {
+      alert("Please log in before saving a problem.");
+      return;
+    }
 
-      title: form.title,
+    const newProblem = {
+      title: form.title.trim(),
 
       description:
         form.description || "No description added.",
@@ -507,7 +644,36 @@ I am a beginner, so keep the explanation simple.`;
       },
     };
 
-    setProblems([...problems, newProblem]);
+    const databaseProblem = {
+      user_id: authUser.id,
+      title: newProblem.title,
+      description: newProblem.description,
+      difficulty: newProblem.difficulty,
+      is_learned: newProblem.isLearned,
+      solutions: newProblem.solutions,
+    };
+
+    const { data, error } = await supabase
+      .from("mycode_problems")
+      .insert(databaseProblem)
+      .select()
+      .single();
+
+    if (error) {
+      alert(`Could not save problem: ${error.message}`);
+      return;
+    }
+
+    const savedProblem = {
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      difficulty: data.difficulty,
+      isLearned: data.is_learned,
+      solutions: data.solutions ?? {},
+    };
+
+    setProblems((currentProblems) => [...currentProblems, savedProblem]);
 
     setForm({
       title: "",
@@ -526,6 +692,89 @@ I am a beginner, so keep the explanation simple.`;
     setShowAddProblem(false);
   };
 
+
+  /* =========================================================
+     LOGIN / SIGN UP SCREEN
+     ========================================================= */
+
+  if (authLoading) {
+    return (
+      <div className="app auth-screen">
+        <div className="auth-card">
+          <div className="brand auth-brand">
+            <div className="brand-icon">&lt;/&gt;</div>
+            <span>MyCode</span>
+          </div>
+          <p>Connecting to your account...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!authUser) {
+    return (
+      <div className="app auth-screen">
+        <form className="auth-card" onSubmit={handleAuth}>
+          <div className="brand auth-brand">
+            <div className="brand-icon">&lt;/&gt;</div>
+            <span>MyCode</span>
+          </div>
+          <h1>{authMode === "login" ? "Welcome back" : "Create your account"}</h1>
+          <p>
+            {authMode === "login"
+              ? "Log in to access your saved coding problems."
+              : "Sign up to save your coding practice securely."}
+          </p>
+
+          <label htmlFor="auth-email">Email</label>
+          <input
+            id="auth-email"
+            type="email"
+            autoComplete="email"
+            value={authEmail}
+            onChange={(e) => setAuthEmail(e.target.value)}
+            placeholder="you@example.com"
+            required
+          />
+
+          <label htmlFor="auth-password">Password</label>
+          <input
+            id="auth-password"
+            type="password"
+            autoComplete={authMode === "login" ? "current-password" : "new-password"}
+            value={authPassword}
+            onChange={(e) => setAuthPassword(e.target.value)}
+            placeholder="At least 6 characters"
+            minLength={6}
+            required
+          />
+
+          {authMessage && <p className="auth-message">{authMessage}</p>}
+
+          <button className="save-button auth-submit" type="submit" disabled={authBusy}>
+            {authBusy
+              ? "Please wait..."
+              : authMode === "login"
+                ? "Log In"
+                : "Create Account"}
+          </button>
+
+          <p className="auth-switch">
+            {authMode === "login" ? "New to MyCode?" : "Already have an account?"}{" "}
+            <button
+              type="button"
+              onClick={() => {
+                setAuthMode(authMode === "login" ? "signup" : "login");
+                setAuthMessage("");
+              }}
+            >
+              {authMode === "login" ? "Sign Up" : "Log In"}
+            </button>
+          </p>
+        </form>
+      </div>
+    );
+  }
 
   /* =========================================================
      PROBLEM DETAILS PAGE
@@ -569,9 +818,9 @@ I am a beginner, so keep the explanation simple.`;
           </nav>
 
 
-          <div className="profile">
-            SM
-          </div>
+          <button className="profile logout-button" onClick={handleLogout} title={authUser.email}>
+            Log out
+          </button>
 
         </header>
 
@@ -780,9 +1029,9 @@ I am a beginner, so keep the explanation simple.`;
           </nav>
 
 
-          <div className="profile">
-            SM
-          </div>
+          <button className="profile logout-button" onClick={handleLogout} title={authUser.email}>
+            Log out
+          </button>
 
         </header>
 
@@ -927,9 +1176,9 @@ I am a beginner, so keep the explanation simple.`;
         </nav>
 
 
-        <div className="profile">
-          SM
-        </div>
+        <button className="profile logout-button" onClick={handleLogout} title={authUser.email}>
+          Log out
+        </button>
 
       </header>
 
