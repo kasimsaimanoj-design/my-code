@@ -1205,7 +1205,7 @@ I am a beginner, so keep the explanation simple.`;
 
     const chatGPTUrl =
 
-      "https.//chatgpt.com/?q=" +
+      "https://chatgpt.com/?q=" +
 
       encodeURIComponent(prompt);
 
